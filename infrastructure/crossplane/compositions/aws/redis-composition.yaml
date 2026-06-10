@@ -8,28 +8,38 @@ spec:
   compositeTypeRef:
     apiVersion: platform.idp-poc.io/v1alpha1
     kind: RedisInstance
-
-  resources:
-    - name: elasticache
-      base:
-        apiVersion: elasticache.aws.upbound.io/v1beta1
-        kind: ReplicationGroup
-        spec:
-          forProvider:
-            region: eu-central-1
-            description: IDP PoC Redis
-            nodeType: cache.t3.micro
-            numCacheClusters: 1
-            engineVersion: "7.1"
-          writeConnectionSecretToRef:
-            namespace: crossplane-system
-            name: ""
-      patches:
-        - fromFieldPath: metadata.name
-          toFieldPath: spec.writeConnectionSecretToRef.name
-          transforms:
-            - type: string
-              string: { fmt: "%s-redis-connection" }
-      connectionDetails:
-        - name: host
-          fromConnectionSecretKey: primaryEndpointAddress
+  mode: Pipeline
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: elasticache
+            base:
+              apiVersion: elasticache.aws.upbound.io/v1beta1
+              kind: ReplicationGroup
+              spec:
+                forProvider:
+                  region: eu-central-1
+                  description: IDP PoC Redis
+                  nodeType: cache.t3.micro
+                  numCacheClusters: 1
+                  engineVersion: "7.1"
+                writeConnectionSecretToRef:
+                  namespace: crossplane-system
+                  name: ""
+            patches:
+              - fromFieldPath: metadata.name
+                toFieldPath: spec.writeConnectionSecretToRef.name
+                transforms:
+                  - type: string
+                    string:
+                      type: Format
+                      fmt: "%s-redis-connection"
+            connectionDetails:
+              - name: host
+                type: FromConnectionSecretKey
+                fromConnectionSecretKey: primaryEndpointAddress

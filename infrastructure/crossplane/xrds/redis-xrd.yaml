@@ -10,6 +10,9 @@ spec:
   claimNames:
     kind: RedisClaim
     plural: redisclaims
+  connectionSecretKeys:
+    - host
+    - port
 
   versions:
     - name: v1alpha1
@@ -21,7 +24,7 @@ spec:
           properties:
             spec:
               type: object
-              required: [parameters, writeConnectionSecretToRef]
+              required: [parameters]
               properties:
                 parameters:
                   type: object
@@ -39,10 +42,3 @@ spec:
                   properties:
                     name:
                       type: string
-      connectionDetails:
-        - name: host
-          type: FromConnectionSecretKey
-          fromConnectionSecretKey: host
-        - name: port
-          type: Value
-          value: "6379"

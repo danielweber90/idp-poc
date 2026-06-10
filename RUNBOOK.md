@@ -3,23 +3,23 @@
 Track phase completion here. Update checkboxes as you work.
 
 ## Status
-- [ ] Phase 0 - Prerequisites verified
-- [ ] Phase 1 - EKS cluster running (or: kind cluster running)
-- [ ] Phase 2 - Platform installed (ArgoCD, Observability, Kong)
-- [ ] Phase 3 - Crossplane running, XRDs applied
+- [x] Phase 0 - Prerequisites verified
+- [x] Phase 1 - EKS cluster running (or: kind cluster running)
+- [x] Phase 2 - Platform installed (ArgoCD, Observability, Kong)
+- [x] Phase 3 - Crossplane running, XRDs applied
 - [ ] Phase 4 - Demo app deployed via ArgoCD
 - [ ] Phase 5 - Backstage running, catalog populated
 
 ## Environment (fill in as you go)
 ```
-Cluster type:     [ AWS EKS | kind ]
+Cluster type:     AWS EKS
 Cluster name:     idp-poc
 Region:           eu-central-1
-kubectl context:  (fill in after bootstrap)
+kubectl context:  arn:aws:eks:eu-central-1:084375542523:cluster/idp-poc
 Backstage URL:    (fill in after Phase 5)
-ArgoCD URL:       (fill in after Phase 2)
-Grafana URL:      (fill in after Phase 2)
-Kong proxy URL:   (fill in after Phase 2)
+ArgoCD URL:       http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/argocd
+Grafana URL:      http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/grafana  (admin / idp-poc-admin)
+Kong proxy URL:   ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com
 Demo app URL:     (fill in after Phase 4)
 ```
 

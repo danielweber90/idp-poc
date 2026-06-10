@@ -10,6 +10,11 @@ spec:
   claimNames:
     kind: ObjectStorageClaim
     plural: objectstorageclaims
+  connectionSecretKeys:
+    - endpoint
+    - bucketName
+    - accessKey
+    - secretKey
 
   versions:
     - name: v1alpha1
@@ -21,7 +26,7 @@ spec:
           properties:
             spec:
               type: object
-              required: [parameters, writeConnectionSecretToRef]
+              required: [parameters]
               properties:
                 parameters:
                   type: object
@@ -38,16 +43,3 @@ spec:
                   properties:
                     name:
                       type: string
-      connectionDetails:
-        - name: endpoint
-          type: FromConnectionSecretKey
-          fromConnectionSecretKey: endpoint
-        - name: bucketName
-          type: FromConnectionSecretKey
-          fromConnectionSecretKey: bucketName
-        - name: accessKey
-          type: FromConnectionSecretKey
-          fromConnectionSecretKey: accessKey
-        - name: secretKey
-          type: FromConnectionSecretKey
-          fromConnectionSecretKey: secretKey

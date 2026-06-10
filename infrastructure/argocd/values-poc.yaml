@@ -10,6 +10,7 @@ server:
 configs:
   params:
     server.insecure: true
+    server.rootpath: /argocd
 
   cm:
     # Allow anonymous read access for PoC demo

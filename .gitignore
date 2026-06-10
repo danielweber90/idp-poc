@@ -1,0 +1,13 @@
+# Tofu / Terraform
+infrastructure/tofu/.terraform/
+infrastructure/tofu/terraform.tfstate
+infrastructure/tofu/terraform.tfstate.backup
+infrastructure/tofu/*.tfvars
+
+# Claude Code local settings
+.claude/settings.local.json
+.claude/worktrees/
+
+# Node
+node_modules/
+npm-debug.log

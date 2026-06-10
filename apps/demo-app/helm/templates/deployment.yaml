@@ -14,12 +14,12 @@ spec:
     metadata:
       labels:
         app: {{ .Release.Name }}
-        {{- range ,  := .Values.podLabels }}
-        {{  }}: {{  | quote }}
+        {{- range $k, $v := .Values.podLabels }}
+        {{ $k }}: {{ $v | quote }}
         {{- end }}
       annotations:
-        {{- range ,  := .Values.podAnnotations }}
-        {{  }}: {{  | quote }}
+        {{- range $k, $v := .Values.podAnnotations }}
+        {{ $k }}: {{ $v | quote }}
         {{- end }}
     spec:
       containers:
@@ -27,14 +27,29 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - containerPort: 3000
+            - name: http
+              containerPort: 3000
           env:
-            - name: DATABASE_URL
+            - name: PGHOST
               valueFrom:
                 secretKeyRef:
                   name: demo-app-db-credentials
-                  key: connectionString
+                  key: endpoint
                   optional: true
+            - name: PGUSER
+              valueFrom:
+                secretKeyRef:
+                  name: demo-app-db-credentials
+                  key: username
+                  optional: true
+            - name: PGPASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: demo-app-db-credentials
+                  key: password
+                  optional: true
+            - name: PGDATABASE
+              value: "demoapp"
             - name: REDIS_URL
               valueFrom:
                 secretKeyRef:
@@ -58,7 +73,8 @@ spec:
   selector:
     app: {{ .Release.Name }}
   ports:
-    - port: 3000
+    - name: http
+      port: 3000
       targetPort: 3000
 ---
 apiVersion: monitoring.coreos.com/v1
@@ -73,6 +89,26 @@ spec:
     matchLabels:
       app: {{ .Release.Name }}
   endpoints:
-    - port: "3000"
+    - port: http
       path: /metrics
       interval: 15s
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ .Release.Name }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    konghq.com/strip-path: "true"
+spec:
+  ingressClassName: kong
+  rules:
+    - http:
+        paths:
+          - path: /demo
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ .Release.Name }}
+                port:
+                  number: 3000

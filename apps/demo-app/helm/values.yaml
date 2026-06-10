@@ -1,6 +1,6 @@
 replicaCount: 2
 image:
-  repository: ""
+  repository: "084375542523.dkr.ecr.eu-central-1.amazonaws.com/idp-poc/demo-app"
   tag: "latest"
   pullPolicy: IfNotPresent
 service:

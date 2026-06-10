@@ -1,7 +1,7 @@
 FROM node:20-alpine
 WORKDIR /app
 COPY src/package.json .
-RUN apk add --no-cache nodejs
+RUN npm install --production
 COPY src/ .
 EXPOSE 3000
 USER node
