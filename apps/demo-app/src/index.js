@@ -22,6 +22,37 @@ const db = process.env.DATABASE_URL
 let rc = null;
 if (process.env.REDIS_URL) { rc = redis.createClient({ url: process.env.REDIS_URL }); rc.connect().catch(console.error); }
 
+app.get("/", (_, res) => res.send(`<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="UTF-8"><title>IDP PoC Demo App</title>
+<style>
+  body{font-family:system-ui,sans-serif;max-width:640px;margin:60px auto;padding:0 20px;color:#1a1a1a}
+  h1{font-size:1.6rem;margin-bottom:4px}
+  p.sub{color:#555;margin-top:0}
+  table{width:100%;border-collapse:collapse;margin-top:24px}
+  th{text-align:left;padding:8px 12px;background:#f0f0f0;font-size:.85rem;text-transform:uppercase;letter-spacing:.05em}
+  td{padding:10px 12px;border-top:1px solid #e8e8e8;font-size:.95rem}
+  td a{color:#0066cc;text-decoration:none}
+  td a:hover{text-decoration:underline}
+  .badge{display:inline-block;padding:2px 8px;border-radius:4px;font-size:.8rem;font-weight:600}
+  .ok{background:#d4edda;color:#155724}
+  .warn{background:#fff3cd;color:#856404}
+</style>
+</head>
+<body>
+  <h1>IDP PoC — Demo App</h1>
+  <p class="sub">Node.js · Express · PostgreSQL · Redis · Prometheus metrics</p>
+  <table>
+    <tr><th>Endpoint</th><th>Description</th></tr>
+    <tr><td><a href="/health">/health</a></td><td>Liveness check</td></tr>
+    <tr><td><a href="/api/info">/api/info</a></td><td>Backing-service connection status</td></tr>
+    <tr><td><a href="/api/db-test">/api/db-test</a></td><td>Write a row to RDS, return visit count</td></tr>
+    <tr><td><a href="/api/cache-test">/api/cache-test</a></td><td>Increment Redis counter</td></tr>
+    <tr><td><a href="/metrics">/metrics</a></td><td>Prometheus metrics (scraped by Grafana)</td></tr>
+  </table>
+</body>
+</html>`));
+
 app.get("/health", (_, res) => res.json({ status: "ok", version: "1.0.0" }));
 app.get("/metrics", async (_, res) => { res.set("Content-Type", promClient.register.contentType); res.end(await promClient.register.metrics()); });
 app.get("/api/info", (_, res) => res.json({ app: "IDP PoC Demo App", db: db ? "connected" : "not configured", redis: rc ? "connected" : "not configured" }));
