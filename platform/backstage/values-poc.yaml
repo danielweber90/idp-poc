@@ -1,27 +1,43 @@
 backstage:
+  image:
+    registry: ghcr.io
+    repository: backstage/backstage
+    tag: latest
+
+  extraEnvVarsSecrets:
+    - backstage-secrets
+
   appConfig:
     app:
       title: "IDP PoC Developer Portal"
-      baseUrl: http://localhost:7007
+      baseUrl: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/backstage
+
     backend:
-      baseUrl: http://localhost:7007
+      baseUrl: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/backstage
+      listen:
+        port: 7007
+      cors:
+        origin: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com
       database:
         client: pg
         connection:
-          host: ${POSTGRES_HOST}
-          port: ${POSTGRES_PORT}
-          user: ${POSTGRES_USER}
+          host: "127.0.0.1"
+          port: "5432"
+          user: backstage
           password: ${POSTGRES_PASSWORD}
+
     integrations:
       github:
         - host: github.com
           token: ${GITHUB_TOKEN}
+
     catalog:
       rules:
-        - allow: [Component, System, Group, Resource, API]
+        - allow: [Component, System, Group, Resource, API, Location]
       locations:
         - type: url
-          target: https://github.com/${GITHUB_ORG}/idp-poc/blob/main/apps/demo-app/catalog-info.yaml
+          target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/apps/demo-app/catalog-info.yaml
+
     kubernetes:
       serviceLocatorMethod:
         type: multiTenant
@@ -33,8 +49,8 @@ backstage:
               authProvider: serviceAccount
               serviceAccountToken: ${K8S_SA_TOKEN}
               skipTLSVerify: true
+
     argocd:
-      baseUrl: http://argocd-server.argocd.svc.cluster.local
       username: admin
       password: ${ARGOCD_AUTH_TOKEN}
       appLocatorMethods:
@@ -42,5 +58,21 @@ backstage:
           instances:
             - name: main
               url: http://argocd-server.argocd.svc.cluster.local
+
     grafana:
       domain: http://kube-prometheus-stack-grafana.platform-monitoring.svc.cluster.local
+
+# In-cluster PostgreSQL — simpler than wiring external RDS for Backstage
+postgresql:
+  enabled: true
+  auth:
+    username: backstage
+    password: backstage-poc-db
+    database: backstage
+  primary:
+    persistence:
+      enabled: true
+      size: 2Gi
+
+ingress:
+  enabled: false   # We use Kong ingress manually
