@@ -1,0 +1,71 @@
+# CompositeResourceDefinition: Developer API for PostgreSQL
+# Developers use PostgreSQLClaim in their namespace
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: postgresqlinstances.platform.idp-poc.io
+spec:
+  group: platform.idp-poc.io
+  names:
+    kind: PostgreSQLInstance
+    plural: postgresqlinstances
+  claimNames:
+    kind: PostgreSQLClaim
+    plural: postgresqlclaims
+
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [parameters, writeConnectionSecretToRef]
+              properties:
+                parameters:
+                  type: object
+                  required: [size]
+                  properties:
+                    size:
+                      type: string
+                      enum: [small, medium, large]
+                      default: small
+                      description: |
+                        small:  1 vCPU / 1GB RAM (t3.micro on AWS)
+                        medium: 2 vCPU / 4GB RAM (t3.small on AWS)
+                        large:  4 vCPU / 8GB RAM (t3.medium on AWS)
+                    version:
+                      type: string
+                      default: "15"
+                      enum: ["14", "15", "16"]
+                    database:
+                      type: string
+                      default: appdb
+                    username:
+                      type: string
+                      default: appuser
+                writeConnectionSecretToRef:
+                  type: object
+                  required: [name]
+                  properties:
+                    name:
+                      type: string
+      connectionDetails:
+        - name: host
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: endpoint
+        - name: port
+          type: Value
+          value: "5432"
+        - name: username
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: username
+        - name: password
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: password
+        - name: database
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: database

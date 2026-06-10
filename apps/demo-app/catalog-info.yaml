@@ -1,0 +1,26 @@
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: demo-app
+  title: "IDP PoC Demo App"
+  description: "Full IDP developer experience end-to-end"
+  annotations:
+    argocd/app-name: demo-app
+    backstage.io/kubernetes-id: demo-app
+    grafana/dashboard-selector: "app=demo-app"
+  tags: [nodejs, postgresql, redis, poc]
+spec:
+  type: service
+  lifecycle: experimental
+  owner: team-demo
+  dependsOn:
+    - resource:demo-app-db
+    - resource:demo-app-redis
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-demo
+spec:
+  type: team
+  members: []

@@ -1,0 +1,13 @@
+# Loki values for IDP PoC (single-binary mode)
+deploymentMode: SingleBinary
+loki:
+  auth_enabled: false
+  commonConfig:
+    replication_factor: 1
+  storage:
+    type: filesystem
+singleBinary:
+  replicas: 1
+  persistence:
+    enabled: true
+    size: 5Gi

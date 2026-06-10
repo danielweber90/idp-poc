@@ -1,0 +1,17 @@
+# Test claim - apply to verify Crossplane works end-to-end:
+# kubectl apply -f infrastructure/crossplane/test-claims/demo-db-claim.yaml -n team-demo
+# kubectl get postgresqlclaim -n team-demo
+# kubectl get secret demo-app-db -n team-demo
+apiVersion: platform.idp-poc.io/v1alpha1
+kind: PostgreSQLClaim
+metadata:
+  name: demo-app-db
+  namespace: team-demo
+spec:
+  parameters:
+    size: small
+    version: "15"
+    database: demoapp
+    username: demouser
+  writeConnectionSecretToRef:
+    name: demo-app-db-credentials

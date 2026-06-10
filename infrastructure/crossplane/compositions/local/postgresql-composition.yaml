@@ -1,0 +1,30 @@
+# Composition: PostgreSQLInstance -> CloudNativePG (in-cluster)
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: postgresqlinstance-local
+  labels:
+    provider: local
+spec:
+  compositeTypeRef:
+    apiVersion: platform.idp-poc.io/v1alpha1
+    kind: PostgreSQLInstance
+
+  resources:
+    - name: cnpg-cluster
+      base:
+        apiVersion: postgresql.cnpg.io/v1
+        kind: Cluster
+        spec:
+          instances: 1
+          storage:
+            size: 1Gi
+          bootstrap:
+            initdb:
+              database: appdb
+              owner: appuser
+      patches:
+        - fromFieldPath: spec.parameters.database
+          toFieldPath: spec.bootstrap.initdb.database
+        - fromFieldPath: spec.parameters.username
+          toFieldPath: spec.bootstrap.initdb.owner

@@ -1,0 +1,46 @@
+backstage:
+  appConfig:
+    app:
+      title: "IDP PoC Developer Portal"
+      baseUrl: http://localhost:7007
+    backend:
+      baseUrl: http://localhost:7007
+      database:
+        client: pg
+        connection:
+          host: ${POSTGRES_HOST}
+          port: ${POSTGRES_PORT}
+          user: ${POSTGRES_USER}
+          password: ${POSTGRES_PASSWORD}
+    integrations:
+      github:
+        - host: github.com
+          token: ${GITHUB_TOKEN}
+    catalog:
+      rules:
+        - allow: [Component, System, Group, Resource, API]
+      locations:
+        - type: url
+          target: https://github.com/${GITHUB_ORG}/idp-poc/blob/main/apps/demo-app/catalog-info.yaml
+    kubernetes:
+      serviceLocatorMethod:
+        type: multiTenant
+      clusterLocatorMethods:
+        - type: config
+          clusters:
+            - url: https://kubernetes.default.svc
+              name: idp-poc
+              authProvider: serviceAccount
+              serviceAccountToken: ${K8S_SA_TOKEN}
+              skipTLSVerify: true
+    argocd:
+      baseUrl: http://argocd-server.argocd.svc.cluster.local
+      username: admin
+      password: ${ARGOCD_AUTH_TOKEN}
+      appLocatorMethods:
+        - type: config
+          instances:
+            - name: main
+              url: http://argocd-server.argocd.svc.cluster.local
+    grafana:
+      domain: http://kube-prometheus-stack-grafana.platform-monitoring.svc.cluster.local

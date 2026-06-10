@@ -1,0 +1,11 @@
+# Kong Ingress Controller values for IDP PoC
+controller:
+  ingressClass: kong
+  installCRDs: false
+
+proxy:
+  type: LoadBalancer   # on AWS: creates NLB. On kind: use NodePort
+  # For kind, uncomment:
+  # type: NodePort
+  # http:
+  #   nodePort: 30080

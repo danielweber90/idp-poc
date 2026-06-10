@@ -1,0 +1,69 @@
+# Composition: PostgreSQLInstance -> AWS RDS
+# Translates the developer's simple claim into AWS-specific resources
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: postgresqlinstance-aws
+  labels:
+    provider: aws
+spec:
+  compositeTypeRef:
+    apiVersion: platform.idp-poc.io/v1alpha1
+    kind: PostgreSQLInstance
+
+  writeConnectionSecretsToNamespace: crossplane-system
+
+  resources:
+    - name: rds-instance
+      base:
+        apiVersion: rds.aws.upbound.io/v1beta1
+        kind: Instance
+        spec:
+          forProvider:
+            region: eu-central-1
+            engine: postgres
+            engineVersion: "15"
+            instanceClass: db.t3.micro        # overridden by patch
+            allocatedStorage: 20
+            skipFinalSnapshot: true
+            publiclyAccessible: false
+            dbName: appdb
+            username: appuser
+          writeConnectionSecretToRef:
+            namespace: crossplane-system
+            name: ""   # patched
+      patches:
+        # Map developer's size to AWS instance class
+        - fromFieldPath: spec.parameters.size
+          toFieldPath: spec.forProvider.instanceClass
+          transforms:
+            - type: map
+              map:
+                small:  db.t3.micro
+                medium: db.t3.small
+                large:  db.t3.medium
+        # Pass database name
+        - fromFieldPath: spec.parameters.database
+          toFieldPath: spec.forProvider.dbName
+        # Pass username
+        - fromFieldPath: spec.parameters.username
+          toFieldPath: spec.forProvider.username
+        # Pass version
+        - fromFieldPath: spec.parameters.version
+          toFieldPath: spec.forProvider.engineVersion
+        # Generate unique secret name
+        - fromFieldPath: metadata.name
+          toFieldPath: spec.writeConnectionSecretToRef.name
+          transforms:
+            - type: string
+              string:
+                fmt: "%s-rds-connection"
+      connectionDetails:
+        - name: endpoint
+          fromConnectionSecretKey: endpoint
+        - name: username
+          fromConnectionSecretKey: username
+        - name: password
+          fromConnectionSecretKey: password
+        - name: database
+          fromFieldPath: spec.parameters.database

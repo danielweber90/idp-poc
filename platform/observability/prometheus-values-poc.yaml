@@ -1,0 +1,43 @@
+# kube-prometheus-stack values for IDP PoC
+grafana:
+  enabled: true
+  adminPassword: "idp-poc-admin"   # change for real deployments
+  sidecar:
+    dashboards:
+      enabled: true
+      label: grafana_dashboard
+  additionalDataSources:
+    - name: Loki
+      type: loki
+      url: http://loki.platform-monitoring.svc.cluster.local:3100
+      access: proxy
+
+prometheus:
+  prometheusSpec:
+    # Scrape all namespaces
+    podMonitorNamespaceSelector: {}
+    serviceMonitorNamespaceSelector: {}
+    podMonitorSelectorNilUsesHelmValues: false
+    serviceMonitorSelectorNilUsesHelmValues: false
+    retention: 7d
+    storageSpec:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 10Gi
+
+alertmanager:
+  alertmanagerSpec:
+    storage:
+      volumeClaimTemplate:
+        spec:
+          resources:
+            requests:
+              storage: 1Gi
+
+# Reduce resource usage for PoC
+nodeExporter:
+  enabled: true
+kubeStateMetrics:
+  enabled: true

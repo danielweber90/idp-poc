@@ -1,0 +1,11 @@
+apiVersion: platform.idp-poc.io/v1alpha1
+kind: RedisClaim
+metadata:
+  name: demo-app-redis
+  namespace: team-demo
+spec:
+  parameters:
+    size: small
+    version: "7"
+  writeConnectionSecretToRef:
+    name: demo-app-redis-credentials

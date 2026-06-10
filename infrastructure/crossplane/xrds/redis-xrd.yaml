@@ -1,0 +1,48 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: redisinstances.platform.idp-poc.io
+spec:
+  group: platform.idp-poc.io
+  names:
+    kind: RedisInstance
+    plural: redisinstances
+  claimNames:
+    kind: RedisClaim
+    plural: redisclaims
+
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [parameters, writeConnectionSecretToRef]
+              properties:
+                parameters:
+                  type: object
+                  properties:
+                    size:
+                      type: string
+                      enum: [small, medium]
+                      default: small
+                    version:
+                      type: string
+                      default: "7"
+                writeConnectionSecretToRef:
+                  type: object
+                  required: [name]
+                  properties:
+                    name:
+                      type: string
+      connectionDetails:
+        - name: host
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: host
+        - name: port
+          type: Value
+          value: "6379"

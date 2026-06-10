@@ -1,0 +1,31 @@
+# Apply after demo-app is deployed: kubectl apply -f infrastructure/kong/demo-app-route.yaml
+apiVersion: configuration.konghq.com/v1
+kind: KongPlugin
+metadata:
+  name: rate-limit-demo
+  namespace: team-demo
+plugin: rate-limiting
+config:
+  minute: 60
+  policy: local
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: demo-app
+  namespace: team-demo
+  annotations:
+    konghq.com/plugins: rate-limit-demo
+    konghq.com/strip-path: "true"
+spec:
+  ingressClassName: kong
+  rules:
+    - http:
+        paths:
+          - path: /demo
+            pathType: Prefix
+            backend:
+              service:
+                name: demo-app
+                port:
+                  number: 3000

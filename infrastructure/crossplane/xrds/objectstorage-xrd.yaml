@@ -1,0 +1,53 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: CompositeResourceDefinition
+metadata:
+  name: objectstorageinstances.platform.idp-poc.io
+spec:
+  group: platform.idp-poc.io
+  names:
+    kind: ObjectStorageInstance
+    plural: objectstorageinstances
+  claimNames:
+    kind: ObjectStorageClaim
+    plural: objectstorageclaims
+
+  versions:
+    - name: v1alpha1
+      served: true
+      referenceable: true
+      schema:
+        openAPIV3Schema:
+          type: object
+          properties:
+            spec:
+              type: object
+              required: [parameters, writeConnectionSecretToRef]
+              properties:
+                parameters:
+                  type: object
+                  properties:
+                    publicRead:
+                      type: boolean
+                      default: false
+                    versioning:
+                      type: boolean
+                      default: false
+                writeConnectionSecretToRef:
+                  type: object
+                  required: [name]
+                  properties:
+                    name:
+                      type: string
+      connectionDetails:
+        - name: endpoint
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: endpoint
+        - name: bucketName
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: bucketName
+        - name: accessKey
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: accessKey
+        - name: secretKey
+          type: FromConnectionSecretKey
+          fromConnectionSecretKey: secretKey
