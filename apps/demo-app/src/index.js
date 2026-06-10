@@ -16,7 +16,7 @@ app.use((req, res, next) => {
 app.use(express.json());
 
 const db = process.env.DATABASE_URL
-  ? new Pool({ connectionString: process.env.DATABASE_URL })
+  ? new Pool({ connectionString: process.env.DATABASE_URL, ssl: { rejectUnauthorized: false } })
   : null;
 
 let rc = null;
