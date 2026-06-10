@@ -13,17 +13,20 @@ backstage:
       baseUrl: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/backstage
 
     backend:
-      baseUrl: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/backstage
+      # No /backstage subpath here: frontend API calls go to /api/... (routed by Kong's /api ingress)
+      baseUrl: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com
       listen:
         port: 7007
+      csp:
+        upgrade-insecure-requests: false
       cors:
         origin: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com
       database:
         client: pg
         connection:
-          host: "127.0.0.1"
-          port: "5432"
-          user: backstage
+          host: ${POSTGRES_HOST}
+          port: ${POSTGRES_PORT}
+          user: ${POSTGRES_USER}
           password: ${POSTGRES_PASSWORD}
 
     integrations:
