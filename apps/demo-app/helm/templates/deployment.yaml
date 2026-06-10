@@ -51,7 +51,7 @@ spec:
                   optional: true
             # Kubernetes interpolates $(VAR) from earlier env entries
             - name: DATABASE_URL
-              value: "postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_ENDPOINT)/demoapp?sslmode=require"
+              value: "postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_ENDPOINT)/demoapp?sslmode=disable"
             - name: REDIS_URL
               valueFrom:
                 secretKeyRef:
