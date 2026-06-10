@@ -30,26 +30,28 @@ spec:
             - name: http
               containerPort: 3000
           env:
-            - name: PGHOST
+            # DB_ENDPOINT = "host:port" from secret, used to build DATABASE_URL
+            - name: DB_ENDPOINT
               valueFrom:
                 secretKeyRef:
                   name: demo-app-db-credentials
                   key: endpoint
                   optional: true
-            - name: PGUSER
+            - name: DB_USER
               valueFrom:
                 secretKeyRef:
                   name: demo-app-db-credentials
                   key: username
                   optional: true
-            - name: PGPASSWORD
+            - name: DB_PASSWORD
               valueFrom:
                 secretKeyRef:
                   name: demo-app-db-credentials
                   key: password
                   optional: true
-            - name: PGDATABASE
-              value: "demoapp"
+            # Kubernetes interpolates $(VAR) from earlier env entries
+            - name: DATABASE_URL
+              value: "postgresql://$(DB_USER):$(DB_PASSWORD)@$(DB_ENDPOINT)/demoapp?sslmode=require"
             - name: REDIS_URL
               valueFrom:
                 secretKeyRef:

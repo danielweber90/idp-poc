@@ -15,11 +15,8 @@ app.use((req, res, next) => {
 });
 app.use(express.json());
 
-// Accept either a full DATABASE_URL or individual PGHOST/PGUSER/PGPASSWORD/PGDATABASE/PGPORT vars
-const db = (process.env.DATABASE_URL || process.env.PGHOST)
-  ? new Pool(process.env.DATABASE_URL
-      ? { connectionString: process.env.DATABASE_URL }
-      : { host: process.env.PGHOST, port: process.env.PGPORT || 5432, user: process.env.PGUSER, password: process.env.PGPASSWORD, database: process.env.PGDATABASE || "demoapp", ssl: { rejectUnauthorized: false } })
+const db = process.env.DATABASE_URL
+  ? new Pool({ connectionString: process.env.DATABASE_URL })
   : null;
 
 let rc = null;
