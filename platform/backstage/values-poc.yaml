@@ -1,7 +1,7 @@
 backstage:
   image:
-    registry: ghcr.io
-    repository: backstage/backstage
+    registry: 084375542523.dkr.ecr.eu-central-1.amazonaws.com
+    repository: idp-poc/backstage
     tag: latest
 
   extraEnvVarsSecrets:
