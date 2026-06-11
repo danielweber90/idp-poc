@@ -18,6 +18,30 @@ spec:
     - resource:demo-app-redis
 ---
 apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: demo-app-db
+  description: "PostgreSQL 15 database provisioned by Crossplane → AWS RDS"
+  annotations:
+    backstage.io/kubernetes-id: demo-app
+spec:
+  type: database
+  owner: group:default/team-demo
+  system: default
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: demo-app-redis
+  description: "Redis 7 cache provisioned by Crossplane → AWS ElastiCache"
+  annotations:
+    backstage.io/kubernetes-id: demo-app
+spec:
+  type: cache
+  owner: group:default/team-demo
+  system: default
+---
+apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
   name: team-demo
