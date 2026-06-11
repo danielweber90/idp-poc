@@ -50,12 +50,6 @@ backstage:
             signIn:
               resolvers:
                 - resolver: usernameMatchingUserEntityName
-          # new backend system (v1.30+) also reads flat config without environment nesting
-          clientId: Iv23licyyL9dmP3zCmdk
-          clientSecret: ${GITHUB_CLIENT_SECRET}
-          signIn:
-            resolvers:
-              - resolver: usernameMatchingUserEntityName
 
     integrations:
       github:
@@ -67,7 +61,7 @@ backstage:
         - allow: [Component, System, Group, Resource, API, Location]
       locations:
         - type: url
-          target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/apps/demo-app/catalog-info.yaml
+          target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/platform/backstage/catalog/demo-app.yaml
 
     kubernetes:
       serviceLocatorMethod:
