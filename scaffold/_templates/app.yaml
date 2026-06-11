@@ -1,0 +1,62 @@
+# Copy this file to apps/<your-team-name>.yaml and fill in the placeholders.
+# Open a PR — ArgoCD deploys your app automatically after merge.
+#
+# Prerequisites:
+#   1. Create a GitHub deploy key (read-only) for your repo:
+#        ssh-keygen -t ed25519 -C "argocd-deploy-key" -f deploy_key -N ""
+#   2. Add deploy_key.pub as a deploy key in your repo (GitHub → Settings → Deploy keys)
+#   3. Base64-encode the private key:
+#        cat deploy_key | base64 | tr -d '\n'
+#   4. Put that value in scaffold/_templates/repo-secret.yaml and add it alongside this file.
+
+---
+# sync-wave 1: repo secret must exist before ArgoCD tries to clone the repo
+apiVersion: v1
+kind: Secret
+metadata:
+  name: <team-name>-repo                     # e.g. team-a-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+type: Opaque
+stringData:
+  type: git
+  url: git@github.com:<org>/<repo>.git       # SSH URL — must match the deploy key
+  sshPrivateKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    <paste the contents of your deploy_key file here>
+    -----END OPENSSH PRIVATE KEY-----
+
+---
+# sync-wave 2: Application is registered after the repo secret is ready
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: <team-name>-webapp                   # e.g. team-a-webapp
+  namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
+spec:
+  project: platform-dev
+  source:
+    repoURL: https://github.com/<org>/<repo>.git
+    targetRevision: main
+    path: deploy
+    helm:
+      releaseName: <team-name>-webapp
+      valueFiles:
+        - values.yaml
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: <team-name>                   # e.g. team-a — must match teamName in values.yaml
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true

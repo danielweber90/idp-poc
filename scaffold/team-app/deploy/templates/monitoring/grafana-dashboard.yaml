@@ -1,0 +1,147 @@
+{{- if .Values.monitoring.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-dashboard
+  namespace: {{ .Values.teamName }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  dashboard.json: |
+    {
+      "title": "{{ .Values.teamName }} — Webapp",
+      "uid": "{{ .Values.teamName }}-webapp",
+      "tags": ["{{ .Values.teamName }}"],
+      "timezone": "browser",
+      "schemaVersion": 38,
+      "panels": [
+        {
+          "id": 1,
+          "title": "Request Rate (req/s)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 0},
+          "targets": [{
+            "expr": "sum(rate(http_requests_total{namespace=\"{{ .Values.teamName }}\"}[2m])) by (handler)",
+            "legendFormat": "{{ "{{handler}}" }}"
+          }]
+        },
+        {
+          "id": 2,
+          "title": "Error Rate (%)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 0},
+          "targets": [{
+            "expr": "sum(rate(http_requests_total{namespace=\"{{ .Values.teamName }}\", status_code=~\"5..\"}[2m])) / sum(rate(http_requests_total{namespace=\"{{ .Values.teamName }}\"}[2m])) * 100",
+            "legendFormat": "error %"
+          }]
+        },
+        {
+          "id": 3,
+          "title": "Response Time p95 (s)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+          "targets": [{
+            "expr": "histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{namespace=\"{{ .Values.teamName }}\"}[2m])) by (le, handler))",
+            "legendFormat": "p95 {{ "{{handler}}" }}"
+          }]
+        },
+        {
+          "id": 4,
+          "title": "Logs",
+          "type": "logs",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+          "datasource": {"type": "loki", "uid": "loki"},
+          "targets": [{
+            "expr": "{namespace=\"{{ .Values.teamName }}\"}",
+            "legendFormat": ""
+          }]
+        },
+        {
+          "id": 5,
+          "title": "Latency p50 / p99 (s)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 16},
+          "targets": [
+            {
+              "expr": "histogram_quantile(0.50, sum(rate(http_request_duration_seconds_bucket{namespace=\"{{ .Values.teamName }}\"}[2m])) by (le, handler))",
+              "legendFormat": "p50 {{ "{{handler}}" }}"
+            },
+            {
+              "expr": "histogram_quantile(0.99, sum(rate(http_request_duration_seconds_bucket{namespace=\"{{ .Values.teamName }}\"}[2m])) by (le, handler))",
+              "legendFormat": "p99 {{ "{{handler}}" }}"
+            }
+          ]
+        },
+        {
+          "id": 6,
+          "title": "Pod Restarts",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 16},
+          "targets": [{
+            "expr": "increase(kube_pod_container_status_restarts_total{namespace=\"{{ .Values.teamName }}\"}[10m])",
+            "legendFormat": "{{ "{{pod}}" }}"
+          }]
+        },
+        {
+          "id": 7,
+          "title": "CPU Usage vs Limit",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 24},
+          "fieldConfig": {"defaults": {"unit": "percentunit"}},
+          "targets": [{
+            "expr": "sum(rate(container_cpu_usage_seconds_total{namespace=\"{{ .Values.teamName }}\", container!=\"\"}[2m])) by (container) / sum(kube_pod_container_resource_limits{namespace=\"{{ .Values.teamName }}\", resource=\"cpu\", container!=\"\"}) by (container)",
+            "legendFormat": "{{ "{{container}}" }}"
+          }]
+        },
+        {
+          "id": 8,
+          "title": "Memory Usage vs Limit",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 24},
+          "fieldConfig": {"defaults": {"unit": "bytes"}},
+          "targets": [
+            {
+              "expr": "sum(container_memory_working_set_bytes{namespace=\"{{ .Values.teamName }}\", container!=\"\"}) by (container)",
+              "legendFormat": "{{ "{{container}}" }} used"
+            },
+            {
+              "expr": "sum(kube_pod_container_resource_limits{namespace=\"{{ .Values.teamName }}\", resource=\"memory\", container!=\"\"}) by (container)",
+              "legendFormat": "{{ "{{container}}" }} limit"
+            }
+          ]
+        },
+        {
+          "id": 9,
+          "title": "Error Rate by Endpoint (%)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 12, "x": 0, "y": 32},
+          "targets": [{
+            "expr": "sum(rate(http_requests_total{namespace=\"{{ .Values.teamName }}\", status_code=~\"5..\"}[2m])) by (handler) / sum(rate(http_requests_total{namespace=\"{{ .Values.teamName }}\"}[2m])) by (handler) * 100",
+            "legendFormat": "{{ "{{handler}}" }}"
+          }]
+        },
+        {
+          "id": 10,
+          "title": "Pod Readiness",
+          "type": "stat",
+          "gridPos": {"h": 8, "w": 12, "x": 12, "y": 32},
+          "targets": [{
+            "expr": "sum(kube_pod_status_ready{namespace=\"{{ .Values.teamName }}\", condition=\"true\"}) by (pod)",
+            "legendFormat": "{{ "{{pod}}" }}"
+          }]
+        },
+        {
+          "id": 11,
+          "title": "Request Rate by Endpoint & Status (req/s)",
+          "type": "timeseries",
+          "gridPos": {"h": 8, "w": 24, "x": 0, "y": 40},
+          "targets": [{
+            "expr": "sum(rate(http_requests_total{namespace=\"{{ .Values.teamName }}\"}[2m])) by (handler, status_code)",
+            "legendFormat": "{{ "{{handler}}" }} {{ "{{status_code}}" }}"
+          }]
+        }
+      ],
+      "time": {"from": "now-1h", "to": "now"},
+      "refresh": "30s"
+    }
+{{- end }}

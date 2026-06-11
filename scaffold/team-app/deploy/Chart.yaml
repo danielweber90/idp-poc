@@ -1,0 +1,6 @@
+apiVersion: v2
+name: webapp
+description: Team web application — React SPA + FastAPI + PostgreSQL
+type: application
+version: 0.1.0
+appVersion: "0.1.0"

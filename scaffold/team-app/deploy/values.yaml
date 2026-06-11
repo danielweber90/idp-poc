@@ -1,0 +1,50 @@
+# ── Required ──────────────────────────────────────────────────────────────────
+# Your team name. Used as the namespace and URL path prefix: http://localhost/<teamName>/
+teamName: my-team
+
+# ── Images ────────────────────────────────────────────────────────────────────
+# Build with:
+#   docker build --build-arg TEAM_NAME=<teamName> -t <registry>/frontend:<tag> frontend/
+#   docker build -t <registry>/backend:<tag> backend/
+frontend:
+  image: ghcr.io/your-org/webapp-frontend
+  tag: latest
+  replicas: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 32Mi
+    limits:
+      memory: 64Mi
+
+backend:
+  image: ghcr.io/your-org/webapp-backend
+  tag: latest
+  replicas: 1
+  resources:
+    requests:
+      cpu: 10m
+      memory: 64Mi
+    limits:
+      memory: 128Mi
+
+# ── Database ──────────────────────────────────────────────────────────────────
+database:
+  image: postgres:16-alpine
+  storage: 1Gi
+  # Credentials — use external-secrets in production, plaintext only for local dev
+  credentials:
+    username: webapp
+    password: ""          # REQUIRED — set before first deploy
+    rootPassword: ""      # REQUIRED — set before first deploy
+
+# ── Ingress ───────────────────────────────────────────────────────────────────
+ingress:
+  host: localhost
+  ingressClassName: traefik
+
+# ── Monitoring ────────────────────────────────────────────────────────────────
+monitoring:
+  enabled: true
+  labels:
+    monitoring.instance: platform-dev

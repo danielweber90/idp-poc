@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: {{ .Values.teamName }}
+  labels:
+    kubernetes.io/metadata.name: {{ .Values.teamName }}
+    project-name: {{ .Values.teamName }}
+    stage: dev
