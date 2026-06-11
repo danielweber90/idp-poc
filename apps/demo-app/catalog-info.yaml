@@ -23,4 +23,5 @@ metadata:
   name: team-demo
 spec:
   type: team
+  children: []
   members: []
