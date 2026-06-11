@@ -13,8 +13,9 @@ backstage:
       baseUrl: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/backstage
 
     backend:
-      # No /backstage subpath here: frontend API calls go to /api/... (routed by Kong's /api ingress)
-      baseUrl: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com
+      # Kong uses strip-path:true so /backstage/* → /* before reaching Backstage.
+      # Keep /backstage here so the frontend builds API URLs as /backstage/api/... which strip-path then strips.
+      baseUrl: http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/backstage
       listen:
         port: 7007
       csp:
