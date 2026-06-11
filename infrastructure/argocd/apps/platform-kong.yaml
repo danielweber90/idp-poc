@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: kong
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://charts.konghq.com
+      chart: ingress
+      targetRevision: "*"
+      helm:
+        valueFiles:
+          - $values/infrastructure/kong/values-poc.yaml
+    - repoURL: https://github.com/danielweber90/idp-poc
+      targetRevision: HEAD
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: kong
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - CreateNamespace=true
+      - ServerSideApply=true
