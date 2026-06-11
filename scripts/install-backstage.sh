@@ -6,6 +6,7 @@ ARGOCD_PW=
 kubectl -n platform-backstage create secret generic backstage-secrets \
   --from-literal=GITHUB_TOKEN="${IDP_POC_GITHUB_TOKEN}" \
   --from-literal=GITHUB_ORG="${IDP_POC_GITHUB_ORG}" \
+  --from-literal=GITHUB_CLIENT_SECRET="${GITHUB_CLIENT_SECRET}" \
   --from-literal=POSTGRES_HOST="backstage-db" \
   --from-literal=POSTGRES_PORT="5432" \
   --from-literal=POSTGRES_USER="backstage" \
