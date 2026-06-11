@@ -30,6 +30,12 @@ backstage:
           user: ${POSTGRES_USER}
           password: ${POSTGRES_PASSWORD}
 
+    auth:
+      environment: development
+      providers:
+        guest:
+          dangerouslyAllowOutsideDevelopment: true
+
     integrations:
       github:
         - host: github.com
