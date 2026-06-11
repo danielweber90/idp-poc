@@ -10,7 +10,7 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: https://github.com/${IDP_POC_GITHUB_ORG}/idp-poc
+    repoURL: https://github.com/danielweber90/idp-poc
     targetRevision: HEAD
     path: infrastructure/argocd/apps
   destination:
