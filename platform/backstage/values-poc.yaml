@@ -49,9 +49,13 @@ backstage:
             clientSecret: ${GITHUB_CLIENT_SECRET}
             signIn:
               resolvers:
-                # Matches the GitHub username with the Backstage user entity name.
-                # See https://backstage.io/docs/auth/github/provider#resolvers for more resolvers.
                 - resolver: usernameMatchingUserEntityName
+          # new backend system (v1.30+) also reads flat config without environment nesting
+          clientId: Iv23licyyL9dmP3zCmdk
+          clientSecret: ${GITHUB_CLIENT_SECRET}
+          signIn:
+            resolvers:
+              - resolver: usernameMatchingUserEntityName
 
     integrations:
       github:
