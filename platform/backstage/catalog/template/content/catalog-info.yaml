@@ -19,11 +19,47 @@ spec:
   lifecycle: experimental
   dependsOn:
     {%- if values.postgresql.enabled %}
-    - resource:${{ values.name }}-db
+    - resource:default/${{ values.name }}-db
     {%- endif %}
     {%- if values.redis.enabled %}
-    - resource:${{ values.name }}-redis
+    - resource:default/${{ values.name }}-redis
     {%- endif %}
     {%- if values.objectStorage.enabled %}
-    - resource:${{ values.name }}-storage
+    - resource:default/${{ values.name }}-storage
     {%- endif %}
+{%- if values.postgresql.enabled %}
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ${{ values.name }}-db
+  description: "PostgreSQL database for ${{ values.name }} — provisioned by Crossplane → AWS RDS"
+spec:
+  type: database
+  owner: group:default/${{ values.owner }}
+  system: default
+{%- endif %}
+{%- if values.redis.enabled %}
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ${{ values.name }}-redis
+  description: "Redis cache for ${{ values.name }} — provisioned by Crossplane → AWS ElastiCache"
+spec:
+  type: cache
+  owner: group:default/${{ values.owner }}
+  system: default
+{%- endif %}
+{%- if values.objectStorage.enabled %}
+---
+apiVersion: backstage.io/v1alpha1
+kind: Resource
+metadata:
+  name: ${{ values.name }}-storage
+  description: "Object storage for ${{ values.name }} — provisioned by Crossplane → AWS S3"
+spec:
+  type: storage
+  owner: group:default/${{ values.owner }}
+  system: default
+{%- endif %}
