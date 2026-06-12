@@ -16,11 +16,11 @@ Cluster type:     AWS EKS
 Cluster name:     idp-poc
 Region:           eu-central-1
 kubectl context:  arn:aws:eks:eu-central-1:084375542523:cluster/idp-poc
-Backstage URL:    http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/backstage
-ArgoCD URL:       http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/argocd
-Grafana URL:      http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/grafana  (admin / idp-poc-admin)
-Kong proxy URL:   ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com
-Demo app URL:     http://ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com/demo
+Backstage URL:    https://idp-poc.impact-tracking.dev.uptimize.merckgroup.com/backstage
+ArgoCD URL:       https://idp-poc.impact-tracking.dev.uptimize.merckgroup.com/argocd
+Grafana URL:      https://idp-poc.impact-tracking.dev.uptimize.merckgroup.com/grafana  (admin / idp-poc-admin)
+Kong proxy URL:   https://idp-poc.impact-tracking.dev.uptimize.merckgroup.com
+Demo app URL:     https://idp-poc.impact-tracking.dev.uptimize.merckgroup.com/demo
 ```
 
 ## Updating Platform Components

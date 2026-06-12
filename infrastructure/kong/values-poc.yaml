@@ -4,8 +4,9 @@ controller:
   installCRDs: false
 
 proxy:
-  type: LoadBalancer   # on AWS: creates NLB. On kind: use NodePort
-  # For kind, uncomment:
-  # type: NodePort
-  # http:
-  #   nodePort: 30080
+  type: LoadBalancer
+  annotations:
+    # Terminate TLS at the CLB; forward HTTP to Kong
+    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:eu-central-1:084375542523:certificate/8bdce501-08ba-4b1b-926c-e2fd85a6db64"
+    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
+    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"

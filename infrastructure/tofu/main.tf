@@ -235,6 +235,52 @@ output "crossplane_provider_role_arn" {
   value = aws_iam_role.crossplane_provider.arn
 }
 
+# ── HTTPS: ACM certificate + Route53 ─────────────────────────────────────────
+variable "domain"          { default = "idp-poc.impact-tracking.dev.uptimize.merckgroup.com" }
+variable "hosted_zone_id"  { default = "Z012541820X8HHJYQM4EA" }
+
+resource "aws_acm_certificate" "idp" {
+  domain_name       = var.domain
+  validation_method = "DNS"
+  lifecycle { create_before_destroy = true }
+}
+
+resource "aws_route53_record" "cert_validation" {
+  for_each = {
+    for dvo in aws_acm_certificate.idp.domain_validation_options : dvo.domain_name => {
+      name   = dvo.resource_record_name
+      type   = dvo.resource_record_type
+      record = dvo.resource_record_value
+    }
+  }
+  zone_id         = var.hosted_zone_id
+  name            = each.value.name
+  type            = each.value.type
+  ttl             = 60
+  records         = [each.value.record]
+  allow_overwrite = true
+}
+
+resource "aws_acm_certificate_validation" "idp" {
+  certificate_arn         = aws_acm_certificate.idp.arn
+  validation_record_fqdns = [for r in aws_route53_record.cert_validation : r.fqdn]
+}
+
+# Route53 alias: subdomain → Kong CLB
+resource "aws_route53_record" "idp" {
+  zone_id = var.hosted_zone_id
+  name    = var.domain
+  type    = "A"
+  alias {
+    name                   = "ab8d1efe13ac04f1f8fd382b3aabd806-1571709816.eu-central-1.elb.amazonaws.com"
+    zone_id                = "Z215JYRZR1TBD5"
+    evaluate_target_health = false
+  }
+}
+
+output "domain"          { value = var.domain }
+output "certificate_arn" { value = aws_acm_certificate_validation.idp.certificate_arn }
+
 # ── Outputs ───────────────────────────────────────────────────────────────────
 output "configure_kubectl" {
   value = "aws eks update-kubeconfig --region ${var.aws_region} --name ${var.cluster_name}"
