@@ -27,7 +27,6 @@ metadata:
 spec:
   type: database
   owner: group:default/team-demo
-  system: default
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Resource
@@ -39,7 +38,6 @@ metadata:
 spec:
   type: cache
   owner: group:default/team-demo
-  system: default
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Group

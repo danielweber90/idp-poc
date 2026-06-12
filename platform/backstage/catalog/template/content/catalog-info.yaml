@@ -37,7 +37,6 @@ metadata:
 spec:
   type: database
   owner: group:default/${{ values.owner }}
-  system: default
 {%- endif %}
 {%- if values.redis.enabled %}
 ---
@@ -49,7 +48,6 @@ metadata:
 spec:
   type: cache
   owner: group:default/${{ values.owner }}
-  system: default
 {%- endif %}
 {%- if values.objectStorage.enabled %}
 ---
@@ -61,5 +59,4 @@ metadata:
 spec:
   type: storage
   owner: group:default/${{ values.owner }}
-  system: default
 {%- endif %}
