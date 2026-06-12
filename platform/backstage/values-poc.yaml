@@ -41,8 +41,6 @@ backstage:
     auth:
       environment: development
       providers:
-        guest:
-          dangerouslyAllowOutsideDevelopment: true
         github:
           development:
             clientId: Iv23licyyL9dmP3zCmdk
@@ -57,11 +55,29 @@ backstage:
           token: ${GITHUB_TOKEN}
 
     catalog:
+      import:
+        entityFilename: catalog-info.yaml
+        pullRequestBranchName: backstage-integration
       rules:
         - allow: [Component, System, Group, Resource, API, Location]
       locations:
         - type: url
           target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/platform/backstage/catalog/demo-app.yaml
+        - type: file
+          target: ../../examples/entities.yaml
+
+        # Local example template
+        - type: file
+          target: ../../examples/template/template.yaml
+          rules:
+            - allow: [Template]
+
+        # Local example organizational data
+        - type: file
+          target: ../../examples/org.yaml
+          rules:
+            - allow: [User, Group]
+      
 
     kubernetes:
       serviceLocatorMethod:
