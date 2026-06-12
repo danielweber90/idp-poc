@@ -3,12 +3,28 @@ kind: User
 metadata:
   name: danielweber90
 spec:
-  memberOf: [guests]
+  memberOf: [team-demo, admins]
 ---
 apiVersion: backstage.io/v1alpha1
 kind: Group
 metadata:
   name: guests
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: team-demo
+spec:
+  type: team
+  children: []
+---
+apiVersion: backstage.io/v1alpha1
+kind: Group
+metadata:
+  name: admins
 spec:
   type: team
   children: []

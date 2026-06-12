@@ -1,12 +1,20 @@
 import { createApp } from '@backstage/frontend-defaults';
-import catalogPlugin from '@backstage/plugin-catalog/alpha';
-import kubernetesPlugin from '@backstage/plugin-kubernetes/alpha';
-import { navModule } from './modules/nav';
-
+import { createFrontendModule } from '@backstage/frontend-plugin-api';
 import { githubAuthApiRef } from '@backstage/core-plugin-api';
 import { SignInPageBlueprint } from '@backstage/plugin-app-react';
 import { SignInPage } from '@backstage/core-components';
-import { createFrontendModule } from '@backstage/frontend-plugin-api';
+
+import catalogPlugin from '@backstage/plugin-catalog/alpha';
+import catalogGraphPlugin from '@backstage/plugin-catalog-graph/alpha';
+import kubernetesPlugin from '@backstage/plugin-kubernetes/alpha';
+import scaffolderPlugin from '@backstage/plugin-scaffolder/alpha';
+import searchPlugin from '@backstage/plugin-search/alpha';
+import techdocsPlugin from '@backstage/plugin-techdocs/alpha';
+import apiDocsPlugin from '@backstage/plugin-api-docs/alpha';
+import orgPlugin from '@backstage/plugin-org/alpha';
+import userSettingsPlugin from '@backstage/plugin-user-settings/alpha';
+
+import { navModule } from './modules/nav';
 
 const signInPage = SignInPageBlueprint.make({
   params: {
@@ -14,12 +22,15 @@ const signInPage = SignInPageBlueprint.make({
       (
         <SignInPage
           {...props}
-          provider={{
-            id: 'github-auth-provider',
-            title: 'GitHub',
-            message: 'Sign in using GitHub',
-            apiRef: githubAuthApiRef,
-          }}
+          providers={[
+            {
+              id: 'github-auth-provider',
+              title: 'GitHub',
+              message: 'Sign in using GitHub',
+              apiRef: githubAuthApiRef,
+            },
+            'guest',
+          ]}
         />
       ),
   },
@@ -28,7 +39,15 @@ const signInPage = SignInPageBlueprint.make({
 export default createApp({
   features: [
     catalogPlugin,
+    catalogImportPlugin,
+    catalogGraphPlugin,
     kubernetesPlugin,
+    scaffolderPlugin,
+    searchPlugin,
+    techdocsPlugin,
+    apiDocsPlugin,
+    orgPlugin,
+    userSettingsPlugin,
     navModule,
     createFrontendModule({
       pluginId: 'app',

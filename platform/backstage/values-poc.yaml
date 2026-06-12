@@ -37,6 +37,11 @@ backstage:
           port: ${POSTGRES_PORT}
           user: ${POSTGRES_USER}
           password: ${POSTGRES_PASSWORD}
+      actions:
+        pluginSources:
+          - auth
+          - catalog
+          - scaffolder
 
     auth:
       environment: development
