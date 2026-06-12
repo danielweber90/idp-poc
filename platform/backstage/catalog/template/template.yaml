@@ -19,10 +19,9 @@ spec:
         name:
           title: Name
           type: string
-          description: Unique name of the component
+          description: Unique name of the component (lowercase letters, numbers, and hyphens only)
+          pattern: '^[a-z0-9][a-z0-9-]*[a-z0-9]$'
           ui:autofocus: true
-          ui:options:
-            rows: 5
     - title: Choose a location
       required:
         - repoUrl
