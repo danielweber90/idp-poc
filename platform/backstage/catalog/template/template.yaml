@@ -190,16 +190,9 @@ spec:
         defaultBranch: main
         repoVisibility: private
 
-    # 3. Generate SSH deploy key and register it on the new repo
-    - id: deploy-key
-      name: Create Deploy Key
-      action: github:deployKey:create
-      input:
-        repoUrl: ${{ parameters.repoUrl }}
-        name: argocd-deploy-key
-        privateKeySecretName: deploy-key-private
-
-    # 4. Generate the ArgoCD Application manifest (with SSH key embedded)
+    # 3. Generate the ArgoCD Application manifest
+    # Repos are private; ArgoCD accesses them via the global github-repo-creds
+    # credential template (HTTPS + GITHUB_TOKEN) — no per-repo SSH key needed.
     - id: fetch-argocd
       name: Generate ArgoCD Manifest
       action: fetch:template
@@ -209,7 +202,6 @@ spec:
         values:
           name: ${{ parameters.name }}
           remoteUrl: ${{ steps['publish'].output.remoteUrl }}
-          sshPrivateKey: ${{ steps['deploy-key'].output.privateKey }}
 
     # 5. Push ArgoCD manifest to the platform repo (apps/ directory)
     - id: register-argocd
