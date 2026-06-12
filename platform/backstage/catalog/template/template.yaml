@@ -209,9 +209,7 @@ spec:
       action: github:repo:push
       input:
         repoUrl: github.com?repo=idp-poc&owner=danielweber90
-        branchName: master
         sourcePath: .argocd
-        commitMessage: "feat: add ArgoCD application for ${{ parameters.name }}"
 
     # 6. Register the new component in the Backstage catalog
     - id: register
