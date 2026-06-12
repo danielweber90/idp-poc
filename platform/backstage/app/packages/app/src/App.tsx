@@ -39,7 +39,6 @@ const signInPage = SignInPageBlueprint.make({
 export default createApp({
   features: [
     catalogPlugin,
-    catalogImportPlugin,
     catalogGraphPlugin,
     kubernetesPlugin,
     scaffolderPlugin,
