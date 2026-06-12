@@ -68,6 +68,14 @@ backstage:
           target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/platform/backstage/catalog/org.yaml
           rules:
             - allow: [User, Group]
+        - type: url
+          target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/platform/backstage/catalog/entities.yaml
+
+        # Local example template
+        - type: url
+          target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/platform/backstage/catalog/template/template.yaml
+          rules:
+            - allow: [Template]
       
 
     kubernetes:
