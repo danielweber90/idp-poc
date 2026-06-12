@@ -10,11 +10,17 @@ proxy:
     service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
     service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
 
-# Override gateway sub-chart: redirect port 443 to Kong's HTTP port (8000)
-# so the CLB can terminate TLS and forward plain HTTP to Kong.
-# Without this, port 443 targets Kong's TLS port (8443) which rejects
-# plain HTTP with "The plain HTTP request was sent to HTTPS port".
+# CLB terminates TLS, forwards plain HTTP to Kong's HTTP listener on port 8000.
+# - http.servicePort=443: service port 443 → containerPort 8000 (Kong HTTP)
+# - tls.enabled=false: no Kong TLS listener (CLB owns TLS, Kong doesn't need it)
+# - crds.enabled=false: CRDs already installed by controller sub-chart; prevents
+#   duplicate CRD resources that break ArgoCD's diff calculation.
 gateway:
+  crds:
+    enabled: false
   proxy:
-    tls:
+    http:
       containerPort: 8000
+      servicePort: 443
+    tls:
+      enabled: false
