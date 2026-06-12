@@ -26,6 +26,8 @@ spec:
       jsonPointers:
         - /metadata/annotations
         - /spec/ports
+        - /spec/clusterIP
+        - /spec/clusterIPs
   syncPolicy:
     automated:
       prune: true
