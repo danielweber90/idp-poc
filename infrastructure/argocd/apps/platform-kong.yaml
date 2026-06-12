@@ -25,6 +25,7 @@ spec:
       namespace: kong
       jsonPointers:
         - /metadata/annotations
+        - /spec/ports
   syncPolicy:
     automated:
       prune: true

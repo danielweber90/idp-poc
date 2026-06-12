@@ -1,12 +1,10 @@
 # Kong Ingress Controller values for IDP PoC
+# CLB SSL termination is managed directly via AWS CLI (not via K8s annotations)
+# to avoid Kubernetes reconciling the listener config.
+# See RUNBOOK.md for CLB listener setup.
 controller:
   ingressClass: kong
   installCRDs: false
 
 proxy:
   type: LoadBalancer
-  annotations:
-    # Terminate TLS at the CLB; forward HTTP to Kong
-    service.beta.kubernetes.io/aws-load-balancer-ssl-cert: "arn:aws:acm:eu-central-1:084375542523:certificate/8bdce501-08ba-4b1b-926c-e2fd85a6db64"
-    service.beta.kubernetes.io/aws-load-balancer-ssl-ports: "443"
-    service.beta.kubernetes.io/aws-load-balancer-backend-protocol: "http"
