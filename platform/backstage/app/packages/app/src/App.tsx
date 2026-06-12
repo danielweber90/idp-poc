@@ -13,6 +13,8 @@ import techdocsPlugin from '@backstage/plugin-techdocs/alpha';
 import apiDocsPlugin from '@backstage/plugin-api-docs/alpha';
 import orgPlugin from '@backstage/plugin-org/alpha';
 import userSettingsPlugin from '@backstage/plugin-user-settings/alpha';
+import notificationsPlugin from '@backstage/plugin-notifications/alpha';
+import signalsPlugin from '@backstage/plugin-signals/alpha';
 
 import { navModule } from './modules/nav';
 
@@ -47,6 +49,8 @@ export default createApp({
     apiDocsPlugin,
     orgPlugin,
     userSettingsPlugin,
+    notificationsPlugin,
+    signalsPlugin,
     navModule,
     createFrontendModule({
       pluginId: 'app',
