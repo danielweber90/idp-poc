@@ -2,7 +2,7 @@
 apiVersion: v1
 kind: Secret
 metadata:
-  name: team-demo-repo                     # e.g. team-a-repo
+  name: demo-app-repo                    # e.g. team-a-repo
   namespace: argocd
   labels:
     argocd.argoproj.io/secret-type: repository
@@ -11,14 +11,10 @@ metadata:
 type: Opaque
 stringData:
   type: git
-  url: git@github.com:danielweber90/kubara-team-app-example.git
+  url: git@github.com:danielweber90/idp-poc-demo-app.git
   sshPrivateKey: |
     -----BEGIN OPENSSH PRIVATE KEY-----
-    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-    QyNTUxOQAAACCFZ1YxBGUn6gasD+i4O+i6TRNchK8fxK7BeBAOLaoYIwAAAJihfZSPoX2U
-    jwAAAAtzc2gtZWQyNTUxOQAAACCFZ1YxBGUn6gasD+i4O+i6TRNchK8fxK7BeBAOLaoYIw
-    AAAEDPpzJJCdgrVRhDLXGf7fEToaIkbXjKho/osRvAaZGctYVnVjEEZSfqBqwP6Lg76LpN
-    E1yErx/ErsF4EA4tqhgjAAAAEWFyZ29jZC1kZXBsb3kta2V5AQIDBA==
+    LS0tLS1CRUdJTiBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0KYjNCbGJuTnphQzFyWlhrdGRqRUFBQUFBQkc1dmJtVUFBQUFFYm05dVpRQUFBQUFBQUFBQkFBQUFNd0FBQUF0emMyZ3RaVwpReU5UVXhPUUFBQUNDSlBuMEpWRVpJNU55NXFKL000clpYMDBTZ0NGUnNvZTdqVXhUK1JvdGxiZ0FBQUpqbkQ0MDQ1dytOCk9BQUFBQXR6YzJndFpXUXlOVFV4T1FBQUFDQ0pQbjBKVkVaSTVOeTVxSi9NNHJaWDAwU2dDRlJzb2U3alV4VCtSb3RsYmcKQUFBRURvNk5uNUF6cUFaMitCZzAzSDdlckxLaUk4Y0h0NkF0bDExRFZNWVo5am1vaytmUWxVUmtqazNMbW9uOHppdGxmVApSS0FJVkd5aDd1TlRGUDVHaTJWdUFBQUFFV0Z5WjI5alpDMWtaWEJzYjNrdGEyVjVBUUlEQkE9PQotLS0tLUVORCBPUEVOU1NIIFBSSVZBVEUgS0VZLS0tLS0K
     -----END OPENSSH PRIVATE KEY-----
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -33,16 +29,16 @@ metadata:
 spec:
   project: default
   source:
-    repoURL: git@github.com:danielweber90/kubara-team-app-example.git
+    repoURL: git@github.com:danielweber90/idp-poc-demo-app.git
     targetRevision: main
     path: deploy
     helm:
-      releaseName: example-team-app
+      releaseName: demo-app
       valueFiles:
         - values.yaml
   destination:
     server: https://kubernetes.default.svc
-    namespace: team-demo
+    namespace: team-a
   syncPolicy:
     automated:
       prune: true
