@@ -1,0 +1,52 @@
+apiVersion: apiextensions.crossplane.io/v1
+kind: Composition
+metadata:
+  name: objectstorageinstance-aws
+  labels:
+    provider: aws
+spec:
+  compositeTypeRef:
+    apiVersion: platform.idp-poc.io/v1alpha1
+    kind: ObjectStorageInstance
+  mode: Pipeline
+  pipeline:
+    - step: patch-and-transform
+      functionRef:
+        name: function-patch-and-transform
+      input:
+        apiVersion: pt.fn.crossplane.io/v1beta1
+        kind: Resources
+        resources:
+          - name: s3-bucket
+            base:
+              apiVersion: s3.aws.upbound.io/v1beta1
+              kind: Bucket
+              spec:
+                forProvider:
+                  region: eu-central-1
+                  forceDestroy: true
+                writeConnectionSecretToRef:
+                  namespace: crossplane-system
+                  name: ""
+            patches:
+              - fromFieldPath: metadata.name
+                toFieldPath: metadata.name
+                transforms:
+                  - type: string
+                    string:
+                      type: Format
+                      fmt: "idp-poc-%s"
+              - fromFieldPath: metadata.name
+                toFieldPath: spec.writeConnectionSecretToRef.name
+                transforms:
+                  - type: string
+                    string:
+                      type: Format
+                      fmt: "%s-s3-connection"
+            connectionDetails:
+              - name: bucketName
+                type: FromFieldPath
+                fromFieldPath: status.atProvider.id
+              - name: endpoint
+                type: FromValue
+                value: "s3.eu-central-1.amazonaws.com"

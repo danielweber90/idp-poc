@@ -1,0 +1,59 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-dashboard
+  namespace: {{ .Release.Namespace }}
+  labels:
+    grafana_dashboard: "1"
+data:
+  {{ .Release.Name }}-dashboard.json: |
+    {
+      "title": "{{ .Release.Name }}",
+      "uid": "{{ .Release.Name }}",
+      "tags": ["idp-poc", "{{ .Release.Name }}"],
+      "timezone": "browser",
+      "schemaVersion": 38,
+      "refresh": "30s",
+      "panels": [
+        {
+          "id": 1,
+          "title": "HTTP Request Rate",
+          "type": "timeseries",
+          "gridPos": { "x": 0, "y": 0, "w": 12, "h": 8 },
+          "targets": [{
+            "expr": "sum(rate(http_requests_total{app=\"{{ .Release.Name }}\"}[5m]))",
+            "legendFormat": "req/s"
+          }]
+        },
+        {
+          "id": 2,
+          "title": "Pod Restarts",
+          "type": "stat",
+          "gridPos": { "x": 12, "y": 0, "w": 6, "h": 8 },
+          "targets": [{
+            "expr": "sum(kube_pod_container_status_restarts_total{namespace=\"{{ .Release.Namespace }}\",pod=~\"{{ .Release.Name }}-.*\"})",
+            "legendFormat": "restarts"
+          }]
+        },
+        {
+          "id": 3,
+          "title": "Container Memory (MB)",
+          "type": "timeseries",
+          "gridPos": { "x": 18, "y": 0, "w": 6, "h": 8 },
+          "targets": [{
+            "expr": "sum(container_memory_working_set_bytes{namespace=\"{{ .Release.Namespace }}\",pod=~\"{{ .Release.Name }}-.*\",container=\"app\"}) / 1024 / 1024",
+            "legendFormat": "MB"
+          }]
+        },
+        {
+          "id": 4,
+          "title": "Pod Status",
+          "type": "stat",
+          "gridPos": { "x": 0, "y": 8, "w": 6, "h": 4 },
+          "targets": [{
+            "expr": "sum(kube_pod_status_ready{namespace=\"{{ .Release.Namespace }}\",pod=~\"{{ .Release.Name }}-.*\",condition=\"true\"})",
+            "legendFormat": "ready pods"
+          }]
+        }
+      ]
+    }

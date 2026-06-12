@@ -1,0 +1,13 @@
+{{- if .Values.objectStorage.enabled }}
+apiVersion: platform.idp-poc.io/v1alpha1
+kind: ObjectStorageClaim
+metadata:
+  name: {{ .Release.Name }}-storage
+  namespace: {{ .Release.Namespace }}
+spec:
+  parameters:
+    publicRead: {{ .Values.objectStorage.publicRead }}
+    versioning: false
+  writeConnectionSecretToRef:
+    name: {{ .Release.Name }}-storage-credentials
+{{- end }}

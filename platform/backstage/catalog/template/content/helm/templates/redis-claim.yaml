@@ -1,0 +1,13 @@
+{{- if .Values.redis.enabled }}
+apiVersion: platform.idp-poc.io/v1alpha1
+kind: RedisClaim
+metadata:
+  name: {{ .Release.Name }}-redis
+  namespace: {{ .Release.Namespace }}
+spec:
+  parameters:
+    size: {{ .Values.redis.size }}
+    version: {{ quote .Values.redis.version }}
+  writeConnectionSecretToRef:
+    name: {{ .Release.Name }}-redis-credentials
+{{- end }}

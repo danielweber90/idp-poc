@@ -1,8 +1,29 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: ${{ values.name | lower | replace(" ", "-") | replace("_", "-") }}
+  name: ${{ values.name }}
+  title: ${{ values.name }}
+  description: "${{ values.name }} — managed by IDP PoC"
+  annotations:
+    argocd/app-name: ${{ values.name }}
+    backstage.io/kubernetes-id: ${{ values.name }}
+    grafana/dashboard-selector: "app=${{ values.name }}"
+    github.com/project-slug: danielweber90/${{ values.name }}
+    backstage.io/techdocs-ref: dir:.
+    slo/target: "${{ values.sloTarget }}"
+  tags:
+    - ${{ values.runtime }}
 spec:
   type: service
-  owner: user:guest
+  owner: group:default/${{ values.owner }}
   lifecycle: experimental
+  dependsOn:
+    {%- if values.postgresql.enabled %}
+    - resource:${{ values.name }}-db
+    {%- endif %}
+    {%- if values.redis.enabled %}
+    - resource:${{ values.name }}-redis
+    {%- endif %}
+    {%- if values.objectStorage.enabled %}
+    - resource:${{ values.name }}-storage
+    {%- endif %}

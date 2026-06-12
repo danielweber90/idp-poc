@@ -10,6 +10,7 @@ grafana:
     dashboards:
       enabled: true
       label: grafana_dashboard
+      searchNamespace: ALL
   additionalDataSources:
     - name: Loki
       type: loki

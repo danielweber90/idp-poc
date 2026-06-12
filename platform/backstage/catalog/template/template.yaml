@@ -1,31 +1,40 @@
 apiVersion: scaffolder.backstage.io/v1beta3
-# https://backstage.io/docs/features/software-catalog/descriptor-format#kind-template
 kind: Template
 metadata:
-  name: example-nodejs-template
-  title: Example Node.js Template
-  description: An example template for the scaffolder that creates a simple Node.js service
+  name: web-application
+  title: Web Application
+  description: >
+    Golden-path template for a Node.js web application.
+    Creates a GitHub repo, deploys to AWS EKS via ArgoCD, provisions
+    backing services via Crossplane, and registers everything in the catalog.
+  tags: [nodejs, recommended]
 spec:
-  owner: user:guest
+  owner: group:default/admins
   type: service
 
-  # These parameters are used to generate the input form in the frontend, and are
-  # used to gather input data for the execution of the template.
   parameters:
-    - title: Fill in some steps
-      required:
-        - name
+    # ── Step 1: Application Details ──────────────────────────────────────────
+    - title: Application Details
+      required: [name, owner, repoUrl]
       properties:
         name:
-          title: Name
+          title: Application Name
           type: string
-          description: Unique name of the component (lowercase letters, numbers, and hyphens only)
+          description: Lowercase letters, numbers, and hyphens only (e.g. my-app)
           pattern: '^[a-z0-9][a-z0-9-]*[a-z0-9]$'
           ui:autofocus: true
-    - title: Choose a location
-      required:
-        - repoUrl
-      properties:
+        owner:
+          title: Owner Team
+          type: string
+          description: Team that owns this application (must exist in the catalog)
+          default: team-demo
+        runtime:
+          title: Runtime
+          type: string
+          default: nodejs20
+          enum: [nodejs20]
+          enumNames: ["Node.js 20 LTS"]
+          description: Application runtime (more options coming soon)
         repoUrl:
           title: Repository Location
           type: string
@@ -34,54 +43,210 @@ spec:
             allowedHosts:
               - github.com
 
-  # These steps are executed in the scaffolder backend, using data that we gathered
-  # via the parameters above.
+    # ── Step 2: Deployment Targets ────────────────────────────────────────────
+    - title: Deployment Targets
+      description: >
+        Choose where to deploy. Additional targets are planned for future releases.
+      properties:
+        deployAws:
+          title: "✅ AWS — eu-central-1 (EKS)"
+          type: boolean
+          default: true
+          description: Deploy to the shared AWS EKS cluster (always enabled)
+          ui:readonly: true
+        deployStackit:
+          title: "STACKIT Standard — Coming Soon"
+          type: boolean
+          default: false
+          description: STACKIT deployment is not yet available in this IDP version
+          ui:disabled: true
+        deployTencent:
+          title: "Tencent Cloud China — Coming Soon"
+          type: boolean
+          default: false
+          description: Tencent Cloud deployment is not yet available in this IDP version
+          ui:disabled: true
+
+    # ── Step 3: Backing Services ──────────────────────────────────────────────
+    - title: Backing Services
+      description: >
+        Select the managed services your application needs.
+        Each enabled service is provisioned by Crossplane and
+        connection credentials are injected automatically.
+      properties:
+        postgresql:
+          title: PostgreSQL
+          type: object
+          properties:
+            enabled:
+              title: Enable PostgreSQL
+              type: boolean
+              default: false
+            size:
+              title: Instance Size
+              type: string
+              default: small
+              enum: [small, medium, large]
+              enumNames:
+                - "Small — db.t3.micro (dev/test)"
+                - "Medium — db.t3.small (production)"
+                - "Large — db.t3.medium (high traffic)"
+        redis:
+          title: Redis Cache
+          type: object
+          properties:
+            enabled:
+              title: Enable Redis
+              type: boolean
+              default: false
+            size:
+              title: Instance Size
+              type: string
+              default: small
+              enum: [small, medium]
+              enumNames:
+                - "Small — cache.t3.micro"
+                - "Medium — cache.t3.small"
+        objectStorage:
+          title: Object Storage (S3)
+          type: object
+          properties:
+            enabled:
+              title: Enable Object Storage
+              type: boolean
+              default: false
+            publicRead:
+              title: Public read access
+              type: boolean
+              default: false
+        mongodb:
+          title: MongoDB — Coming Soon
+          type: object
+          properties:
+            enabled:
+              title: Enable MongoDB
+              type: boolean
+              default: false
+              ui:disabled: true
+        messageQueue:
+          title: Message Queue — Coming Soon
+          type: object
+          properties:
+            enabled:
+              title: Enable Message Queue
+              type: boolean
+              default: false
+              ui:disabled: true
+
+    # ── Step 4: Observability ─────────────────────────────────────────────────
+    - title: Observability
+      description: >
+        Configure alerting and reliability targets.
+        A Grafana dashboard is created automatically for every application.
+      properties:
+        alertEmail:
+          title: Alert Email
+          type: string
+          format: email
+          description: Email address to receive alerts (optional)
+        sloTarget:
+          title: Availability SLO (%)
+          type: number
+          default: 99.5
+          minimum: 90
+          maximum: 99.99
+          description: Availability target — stored as a catalog annotation
+
   steps:
-    # Each step executes an action, in this case one templates files into the working directory.
+    # 1. Generate app skeleton from the content/ template
     - id: fetch-base
-      name: Fetch Base
+      name: Generate App Skeleton
       action: fetch:template
       input:
         url: ./content
         values:
           name: ${{ parameters.name }}
+          owner: ${{ parameters.owner }}
+          runtime: ${{ parameters.runtime }}
+          postgresql:
+            enabled: ${{ parameters.postgresql.enabled if parameters.postgresql else false }}
+            size: ${{ parameters.postgresql.size if parameters.postgresql else 'small' }}
+          redis:
+            enabled: ${{ parameters.redis.enabled if parameters.redis else false }}
+            size: ${{ parameters.redis.size if parameters.redis else 'small' }}
+          objectStorage:
+            enabled: ${{ parameters.objectStorage.enabled if parameters.objectStorage else false }}
+            publicRead: ${{ parameters.objectStorage.publicRead if parameters.objectStorage else false }}
+          sloTarget: ${{ parameters.sloTarget | default(99.5) }}
+          alertEmail: ${{ parameters.alertEmail | default('') }}
 
-    # This step publishes the contents of the working directory to GitHub.
-    # If you or your organization prefer another default branch name over 'main'
-    # you can change that here.
+    # 2. Create private GitHub repo and push skeleton
     - id: publish
-      name: Publish
+      name: Create GitHub Repository
       action: publish:github
       input:
-        description: This is ${{ parameters.name }}
+        description: "${{ parameters.name }} — created by IDP PoC"
         repoUrl: ${{ parameters.repoUrl }}
-        defaultBranch: 'main'
+        defaultBranch: main
+        repoVisibility: private
 
-    # The final step is to register our new component in the catalog.
+    # 3. Generate SSH deploy key and register it on the new repo
+    - id: deploy-key
+      name: Create Deploy Key
+      action: github:deployKey:create
+      input:
+        repoUrl: ${{ parameters.repoUrl }}
+        name: argocd-deploy-key
+        privateKeySecretName: deploy-key-private
+
+    # 4. Generate the ArgoCD Application manifest (with SSH key embedded)
+    - id: fetch-argocd
+      name: Generate ArgoCD Manifest
+      action: fetch:template
+      input:
+        url: ./argocd
+        targetPath: .argocd
+        values:
+          name: ${{ parameters.name }}
+          remoteUrl: ${{ steps['publish'].output.remoteUrl }}
+          sshPrivateKey: ${{ steps['deploy-key'].output.privateKey }}
+
+    # 5. Push ArgoCD manifest to the platform repo (apps/ directory)
+    - id: register-argocd
+      name: Register in ArgoCD
+      action: github:repo:push
+      input:
+        repoUrl: github.com?repo=idp-poc&owner=danielweber90
+        branchName: master
+        sourcePath: .argocd
+        commitMessage: "feat: add ArgoCD application for ${{ parameters.name }}"
+
+    # 6. Register the new component in the Backstage catalog
     - id: register
-      name: Register
+      name: Register in Catalog
       action: catalog:register
       input:
         repoContentsUrl: ${{ steps['publish'].output.repoContentsUrl }}
-        catalogInfoPath: '/catalog-info.yaml'
+        catalogInfoPath: /catalog-info.yaml
 
-    # Let's notify the user that the template has completed using the Notification action
+    # 7. Notify all users
     - id: notify
       name: Notify
       action: notification:send
       input:
-        recipients: entity
-        entityRefs:
-          - user:default/guest
-        title: 'Template executed'
-        info: 'Your template has been executed'
-        severity: 'normal'
+        recipients: broadcast
+        title: "New app: ${{ parameters.name }}"
+        info: "Application ${{ parameters.name }} was created by ${{ parameters.owner }} and is deploying to AWS."
+        severity: normal
 
-  # Outputs are displayed to the user after a successful execution of the template.
   output:
     links:
-      - title: Repository
+      - title: GitHub Repository
         url: ${{ steps['publish'].output.remoteUrl }}
-      - title: Open in catalog
+      - title: ArgoCD Application
+        url: https://idp-poc.impact-tracking.dev.uptimize.merckgroup.com/argocd/applications/argocd/${{ parameters.name }}
+      - title: Open in Catalog
         icon: catalog
         entityRef: ${{ steps['register'].output.entityRef }}
+      - title: Live URL
+        url: https://idp-poc.impact-tracking.dev.uptimize.merckgroup.com/${{ parameters.name }}

@@ -1,0 +1,42 @@
+replicaCount: 1
+
+image:
+  repository: node
+  tag: "20-alpine"
+  pullPolicy: IfNotPresent
+
+app:
+  name: ${{ values.name }}
+  port: 3000
+
+service:
+  type: ClusterIP
+  port: 3000
+
+ingress:
+  enabled: true
+  path: /${{ values.name }}
+
+resources:
+  requests:
+    cpu: 50m
+    memory: 64Mi
+  limits:
+    cpu: 200m
+    memory: 128Mi
+
+postgresql:
+  enabled: ${{ 'true' if values.postgresql.enabled else 'false' }}
+  size: "${{ values.postgresql.size }}"
+  version: "15"
+  database: appdb
+  username: appuser
+
+redis:
+  enabled: ${{ 'true' if values.redis.enabled else 'false' }}
+  size: "${{ values.redis.size }}"
+  version: "7"
+
+objectStorage:
+  enabled: ${{ 'true' if values.objectStorage.enabled else 'false' }}
+  publicRead: ${{ 'true' if values.objectStorage.publicRead else 'false' }}

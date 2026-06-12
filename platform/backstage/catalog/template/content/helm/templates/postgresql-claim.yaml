@@ -1,0 +1,15 @@
+{{- if .Values.postgresql.enabled }}
+apiVersion: platform.idp-poc.io/v1alpha1
+kind: PostgreSQLClaim
+metadata:
+  name: {{ .Release.Name }}-db
+  namespace: {{ .Release.Namespace }}
+spec:
+  parameters:
+    size: {{ .Values.postgresql.size }}
+    version: {{ quote .Values.postgresql.version }}
+    database: {{ .Values.postgresql.database }}
+    username: {{ .Values.postgresql.username }}
+  writeConnectionSecretToRef:
+    name: {{ .Release.Name }}-db-credentials
+{{- end }}
