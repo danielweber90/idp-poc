@@ -18,6 +18,13 @@ spec:
   destination:
     server: https://kubernetes.default.svc
     namespace: kong
+  ignoreDifferences:
+    - group: ""
+      kind: Service
+      name: kong-gateway-proxy
+      namespace: kong
+      jsonPointers:
+        - /metadata/annotations
   syncPolicy:
     automated:
       prune: true
