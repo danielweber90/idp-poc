@@ -28,18 +28,30 @@ spec:
                   nodeType: cache.t3.micro
                   numCacheClusters: 1
                   engineVersion: "7.1"
+                  # Private subnets + security group matching the Tofu-provisioned setup
+                  subnetGroupName: idp-poc-redis
+                  securityGroupIds:
+                    - sg-0cf6359fa805304c1
                 writeConnectionSecretToRef:
                   namespace: crossplane-system
                   name: ""
             patches:
-              - fromFieldPath: metadata.name
+              # Use claim name as the ReplicationGroup ID to stay under the 40-char limit.
+              # The auto-generated XR name (claim + random suffix) exceeds 40 chars for
+              # typical app names. crossplane.io/claim-name is always set on the XR.
+              - fromFieldPath: "metadata.labels[crossplane.io/claim-name]"
+                toFieldPath: metadata.name
+              - fromFieldPath: "metadata.labels[crossplane.io/claim-name]"
                 toFieldPath: spec.writeConnectionSecretToRef.name
                 transforms:
                   - type: string
                     string:
                       type: Format
-                      fmt: "%s-redis-connection"
+                      fmt: "%s-conn"
             connectionDetails:
               - name: host
                 type: FromConnectionSecretKey
                 fromConnectionSecretKey: primaryEndpointAddress
+              - name: port
+                type: FromValue
+                value: "6379"
