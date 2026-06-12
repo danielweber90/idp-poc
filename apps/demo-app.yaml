@@ -15,10 +15,10 @@ stringData:
   sshPrivateKey: |
     -----BEGIN OPENSSH PRIVATE KEY-----
     b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
-    QyNTUxOQAAACCJPn0JVEZI5Ny5qJ/M4rZX00SgCFRsoe7jUxT+RotlbgAAAJjnD4045w+N
-    OAAAAAtzc2gtZWQyNTUxOQAAACCJPn0JVEZI5Ny5qJ/M4rZX00SgCFRsoe7jUxT+Rotlbg
-    AAAEDo6Nn5AzqAZ2+Bg03H7erLKiI8cHt6Atl11DVMYZ9jmok+fQlURkjk3Lmon8zitlfT
-    RKAIVGyh7uNTFP5Gi2VuAAAAEWFyZ29jZC1kZXBsb3kta2V5AQIDBA==
+    QyNTUxOQAAACCFZ1YxBGUn6gasD+i4O+i6TRNchK8fxK7BeBAOLaoYIwAAAJihfZSPoX2U
+    jwAAAAtzc2gtZWQyNTUxOQAAACCFZ1YxBGUn6gasD+i4O+i6TRNchK8fxK7BeBAOLaoYIw
+    AAAEDPpzJJCdgrVRhDLXGf7fEToaIkbXjKho/osRvAaZGctYVnVjEEZSfqBqwP6Lg76LpN
+    E1yErx/ErsF4EA4tqhgjAAAAEWFyZ29jZC1kZXBsb3kta2V5AQIDBA==
     -----END OPENSSH PRIVATE KEY-----
 ---
 apiVersion: argoproj.io/v1alpha1
@@ -35,7 +35,7 @@ spec:
   source:
     repoURL: git@github.com:danielweber90/idp-poc-demo-app.git
     targetRevision: main
-    path: deploy
+    path: helm
     helm:
       releaseName: demo-app
       valueFiles:
