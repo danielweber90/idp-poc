@@ -90,6 +90,17 @@ backstage:
               serviceAccountToken: ${K8S_SA_TOKEN}
               skipTLSVerify: true
 
+    # see https://backstage.io/docs/permissions/getting-started for more on the permission framework
+    permission:
+      # setting this to `false` will disable permissions
+      enabled: true
+
+    # see https://backstage.io/docs/ai/mcp-actions for more details
+    mcpActions:
+      name: 'My Company Backstage' # defaults to "backstage"
+      description: 'Tools for managing your software catalog, creating new services from templates, and exploring your developer portal' # optional
+
+    
     argocd:
       username: admin
       password: ${ARGOCD_AUTH_TOKEN}
