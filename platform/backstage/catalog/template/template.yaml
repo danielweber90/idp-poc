@@ -209,6 +209,7 @@ spec:
       action: github:repo:push
       input:
         repoUrl: github.com?repo=idp-poc&owner=danielweber90
+        branch: master
         sourcePath: .argocd
 
     # 6. Register the new component in the Backstage catalog
