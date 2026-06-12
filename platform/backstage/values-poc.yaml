@@ -63,18 +63,9 @@ backstage:
       locations:
         - type: url
           target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/platform/backstage/catalog/demo-app.yaml
-        - type: file
-          target: ../../examples/entities.yaml
-
-        # Local example template
-        - type: file
-          target: ../../examples/template/template.yaml
-          rules:
-            - allow: [Template]
-
-        # Local example organizational data
-        - type: file
-          target: ../../examples/org.yaml
+        # Org catalog (users, groups) — add users here, no image rebuild needed
+        - type: url
+          target: https://github.com/${GITHUB_ORG}/idp-poc/blob/master/platform/backstage/catalog/org.yaml
           rules:
             - allow: [User, Group]
       
