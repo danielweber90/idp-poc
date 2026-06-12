@@ -1,15 +1,43 @@
+# sync-wave 1: repo secret must exist before ArgoCD tries to clone the repo
+apiVersion: v1
+kind: Secret
+metadata:
+  name: team-demo-repo                     # e.g. team-a-repo
+  namespace: argocd
+  labels:
+    argocd.argoproj.io/secret-type: repository
+  annotations:
+    argocd.argoproj.io/sync-wave: "1"
+type: Opaque
+stringData:
+  type: git
+  url: git@github.com:danielweber90/kubara-team-app-example.git
+  sshPrivateKey: |
+    -----BEGIN OPENSSH PRIVATE KEY-----
+    b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+    QyNTUxOQAAACCFZ1YxBGUn6gasD+i4O+i6TRNchK8fxK7BeBAOLaoYIwAAAJihfZSPoX2U
+    jwAAAAtzc2gtZWQyNTUxOQAAACCFZ1YxBGUn6gasD+i4O+i6TRNchK8fxK7BeBAOLaoYIw
+    AAAEDPpzJJCdgrVRhDLXGf7fEToaIkbXjKho/osRvAaZGctYVnVjEEZSfqBqwP6Lg76LpN
+    E1yErx/ErsF4EA4tqhgjAAAAEWFyZ29jZC1kZXBsb3kta2V5AQIDBA==
+    -----END OPENSSH PRIVATE KEY-----
+---
 apiVersion: argoproj.io/v1alpha1
 kind: Application
 metadata:
   name: demo-app
   namespace: argocd
+  finalizers:
+    - resources-finalizer.argocd.argoproj.io
+  annotations:
+    argocd.argoproj.io/sync-wave: "2"
 spec:
   project: default
   source:
-    repoURL: https://github.com/danielweber90/idp-poc
-    targetRevision: HEAD
-    path: apps/demo-app/helm
+    repoURL: git@github.com:danielweber90/kubara-team-app-example.git
+    targetRevision: main
+    path: deploy
     helm:
+      releaseName: example-team-app
       valueFiles:
         - values.yaml
   destination:
@@ -21,3 +49,4 @@ spec:
       selfHeal: true
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true
